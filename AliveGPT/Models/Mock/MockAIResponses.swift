@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MockAIResponses {
+enum MockAIResponses {
     
     // MARK: - Stress & Anxiety Responses
     static let stressResponses = [

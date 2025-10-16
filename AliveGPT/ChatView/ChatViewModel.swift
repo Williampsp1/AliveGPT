@@ -79,6 +79,7 @@ import SwiftUI
             self.rawValue
         }
     }
+    
     private enum SmartMatchingType {
         case session, circle, digital
     }
@@ -141,41 +142,6 @@ import SwiftUI
         generateAIResponse(for: userMessage)
     }
     
-    private func generateAIResponse(for userMessage: String) {
-        // Simulate AI thinking time
-        Task { @MainActor in
-            if deepResearchActive {
-                messages.append(Message(text: "AliveGPT is conducting Deep Research.....", isCurrentUser: false))
-            } else {
-                messages.append(Message(text: "AliveGPT is thinking...", isCurrentUser: false))
-            }
-            try await Task.sleep(nanoseconds: UInt64.random(in: 1_000_000_000...3_000_000_000)) // 1-3 seconds
-            
-            // Randomly show error or credit limit (15% chance total)
-            let randomValue = Double.random(in: 0...1)
-            if randomValue < 0.1 {
-                messages.removeLast() // Remove thinking message
-                showRandomError()
-                return
-            } else if randomValue < 0.15 {
-                messages.removeLast() // Remove thinking message
-                showCreditLimit()
-                return
-            }
-            
-            let aiResponse = getRandomAIResponse(for: userMessage)
-            let aiMessage = Message(text: aiResponse, isCurrentUser: false)
-            messages[messages.count - 1] = aiMessage
-            
-            // Deduct credits for AI response
-            deductCredits(amount: 2)
-        }
-    }
-    
-    private func getRandomAIResponse(for userMessage: String) -> String {
-        return MockAIResponses.getResponse(for: userMessage)
-    }
-    
     func removeAttachment(at index: Int) {
         guard selectedUIImages.indices.contains(index) || selectedDocumentURLs.indices.contains(index) || loadedSelectedPhotos.indices.contains(index) else { return }
         withAnimation(.spring) {
@@ -215,13 +181,64 @@ import SwiftUI
         generateSmartMatchingResponse(type: .digital)
     }
     
+    func purchaseCredits() {
+        // Add 10 credits
+        creditBalance += 10
+        showCreditLimitAlert = false
+        showLowCreditsAlert = false
+        showSuccessAlert = true
+        print("Purchased 10 credits. New balance: \(creditBalance)")
+    }
+    
+    func upgradeSubscription() {
+        showCreditLimitAlert = false
+        showLowCreditsAlert = false
+        showSuccessAlert = false
+        print("Navigate to subscription upgrade")
+    }
+    
+    private func generateAIResponse(for userMessage: String) {
+        // Simulate AI thinking time
+        Task { @MainActor in
+            if deepResearchActive {
+                messages.append(Message(text: "AliveGPT is conducting Deep Research.....", isCurrentUser: false))
+            } else {
+                messages.append(Message(text: "AliveGPT is thinking...", isCurrentUser: false))
+            }
+            try await Task.sleep(nanoseconds: UInt64.random(in: 1_000_000_000...3_000_000_000)) // 1-3 seconds
+            
+            // Randomly show error or credit limit (15% chance total)
+            let randomValue = Double.random(in: 0...1)
+            if randomValue < 0.1 {
+                messages.removeLast() // Remove thinking message
+                showRandomError()
+                return
+            } else if randomValue < 0.15 {
+                messages.removeLast() // Remove thinking message
+                showCreditLimit()
+                return
+            }
+            
+            let aiResponse = getRandomAIResponse(for: userMessage)
+            let aiMessage = Message(text: aiResponse, isCurrentUser: false)
+            messages[messages.count - 1] = aiMessage
+            
+            // Deduct credits for AI response
+            deductCredits(amount: 2)
+        }
+    }
+    
+    private func getRandomAIResponse(for userMessage: String) -> String {
+        return MockAIResponses.getResponse(for: userMessage)
+    }
+    
     private func generateSmartMatchingResponse(type: SmartMatchingType) {
         Task { @MainActor in
             // Show thinking message
             messages.append(Message(text: "AliveGPT is thinking...", isCurrentUser: false))
             
             // Simulate AI processing
-            try await Task.sleep(nanoseconds: UInt64.random(in: 1_000_000_000...3_000_000_000)) 
+            try await Task.sleep(nanoseconds: UInt64.random(in: 1_000_000_000...3_000_000_000))
             
             // Randomly show error or credit limit (20% chance total for smart matching)
             let randomValue = Double.random(in: 0...1)
@@ -261,7 +278,7 @@ import SwiftUI
             deductCredits(amount: 5)
         }
     }
- 
+    
     private func showRandomError() {
         let errors = [
             "Network connection lost. Please check your internet and try again.",
@@ -278,22 +295,6 @@ import SwiftUI
     
     private func showCreditLimit() {
         showCreditLimitAlert = true
-    }
-    
-    func purchaseCredits() {
-        // Add 10 credits
-        creditBalance += 10
-        showCreditLimitAlert = false
-        showLowCreditsAlert = false
-        showSuccessAlert = true
-        print("Purchased 10 credits. New balance: \(creditBalance)")
-    }
-    
-    func upgradeSubscription() {
-        showCreditLimitAlert = false
-        showLowCreditsAlert = false
-        showSuccessAlert = false
-        print("Navigate to subscription upgrade")
     }
     
     private func deductCredits(amount: Int) {

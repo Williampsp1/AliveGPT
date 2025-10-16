@@ -13,7 +13,6 @@ struct ChatView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(ChatHistoryStore.self) private var chatHistoryStore
     
-    // --- Body ---
     var body: some View {
         NavigationStack {
             VStack {
@@ -44,52 +43,7 @@ struct ChatView: View {
                         }
                     }
                     .overlay(alignment: .top) {
-                        if viewModel.showChatLimitAlert {
-                            chatLimit
-                        } else if viewModel.showErrorAlert {
-                            ErrorAlert(
-                                errorMessage: viewModel.errorMessage,
-                                onDismiss: {
-                                    viewModel.showErrorAlert = false
-                                }
-                            ).offset(y: -115)
-                        } else if viewModel.showCreditLimitAlert {
-                            CreditLimitAlert(
-                                onPurchaseCredits: {
-                                    viewModel.purchaseCredits()
-                                },
-                                onUpgrade: {
-                                    viewModel.upgradeSubscription()
-                                },
-                                onDismiss: {
-                                    viewModel.showCreditLimitAlert = false
-                                },
-                                currentBalance: viewModel.creditBalance
-                            ).offset(y: -145)
-                        } else if viewModel.showLowCreditsAlert {
-                            LowCreditsAlert(
-                                onPurchaseCredits: {
-                                    viewModel.purchaseCredits()
-                                },
-                                onUpgrade: {
-                                    viewModel.upgradeSubscription()
-                                },
-                                onDismiss: {
-                                    viewModel.showLowCreditsAlert = false
-                                },
-                                currentBalance: viewModel.creditBalance
-                            ).offset(y: -125)
-                        } else if viewModel.showSuccessAlert {
-                            SuccessAlert(
-                                onContinue: {
-                                    viewModel.showSuccessAlert = false
-                                },
-                                onDismiss: {
-                                    viewModel.showSuccessAlert = false
-                                },
-                                currentBalance: viewModel.creditBalance
-                            ).offset(y: -145)
-                        }
+                        alerts
                     }
                     .animation(.snappy, value: viewModel.showErrorAlert)
                     .animation(.snappy, value: viewModel.showCreditLimitAlert)
@@ -105,6 +59,56 @@ struct ChatView: View {
             .onTapGesture {
                 hideKeyboard()
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var alerts: some View {
+        if viewModel.showChatLimitAlert {
+            chatLimit
+        } else if viewModel.showErrorAlert {
+            ErrorAlert(
+                errorMessage: viewModel.errorMessage,
+                onDismiss: {
+                    viewModel.showErrorAlert = false
+                }
+            ).offset(y: -115)
+        } else if viewModel.showCreditLimitAlert {
+            CreditLimitAlert(
+                onPurchaseCredits: {
+                    viewModel.purchaseCredits()
+                },
+                onUpgrade: {
+                    viewModel.upgradeSubscription()
+                },
+                onDismiss: {
+                    viewModel.showCreditLimitAlert = false
+                },
+                currentBalance: viewModel.creditBalance
+            ).offset(y: -145)
+        } else if viewModel.showLowCreditsAlert {
+            LowCreditsAlert(
+                onPurchaseCredits: {
+                    viewModel.purchaseCredits()
+                },
+                onUpgrade: {
+                    viewModel.upgradeSubscription()
+                },
+                onDismiss: {
+                    viewModel.showLowCreditsAlert = false
+                },
+                currentBalance: viewModel.creditBalance
+            ).offset(y: -125)
+        } else if viewModel.showSuccessAlert {
+            SuccessAlert(
+                onContinue: {
+                    viewModel.showSuccessAlert = false
+                },
+                onDismiss: {
+                    viewModel.showSuccessAlert = false
+                },
+                currentBalance: viewModel.creditBalance
+            ).offset(y: -145)
         }
     }
     
